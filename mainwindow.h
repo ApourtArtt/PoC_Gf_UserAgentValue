@@ -15,14 +15,19 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void on_le_platform_textChanged(const QString &arg1);
-    void on_le_instal_textChanged(const QString &arg1);
-    void on_le_chrome_textChanged(const QString &arg1);
+    QByteArray CreateCode(QString PlatformGameAccountId, QString InstallationId, QString ChromeVersion);
 
 private:
     Ui::MainWindow *ui;
 
+    QByteArray generatePassword();
+    QByteArray getHashedPassword(QString InstallationId);
     void updateFinalCode();
+
+    QByteArray sha256(QByteArray input);
+    QByteArray sha1(QByteArray input);
+
+
+    bool IsFirstDigitEven(QString InstallationId);
 };
 #endif // MAINWINDOW_H

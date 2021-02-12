@@ -1,58 +1,22 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QByteArray>
-#include <QCryptographicHash>
+#include "codecreator.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QString PlatformGameAccountId = "bd87095a-6dd2-469c-9718-d14d1114e737";//("94d05b8e-31c0-4feb-92f6-c10084146208");
+    QString InstallationId = "a1a73c4e-7aa0-4d03-a54c-220bd0b378ce";//("06cae5e5-a4c2-4056-858b-1cb4fcc44a74");
+    QString ChromeVersion = ("C2.1.22.784");
+
+    CodeCreator c(PlatformGameAccountId, InstallationId, ChromeVersion, "from_ram.p12");
+    qDebug() << c.CreateCode();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::on_le_platform_textChanged(const QString &arg1)
-{
-    QCryptographicHash crypt(QCryptographicHash::Algorithm::Sha1);
-    crypt.addData(arg1.toLatin1(), arg1.size());
-    ui->tb_platform->setText(crypt.result().toHex());
-    updateFinalCode();
-}
-
-void MainWindow::on_le_instal_textChanged(const QString &arg1)
-{
-    QCryptographicHash crypt(QCryptographicHash::Algorithm::Sha256);
-    crypt.addData(arg1.toLatin1(), arg1.size());
-    ui->tb_instal->setText(crypt.result().toHex());
-    updateFinalCode();
-}
-
-void MainWindow::on_le_chrome_textChanged(const QString &arg1)
-{
-    QCryptographicHash crypt(QCryptographicHash::Algorithm::Sha1);
-    crypt.addData(arg1.toLatin1(), arg1.size());
-    ui->tb_chrome->setText(crypt.result().toHex());
-    updateFinalCode();
-}
-
-void MainWindow::updateFinalCode()
-{
-    // encryptionKey + sha1(chromeVersion).toHex()
-    QString append1 = ui->le_encryptionKey->text() + ui->tb_chrome->toPlainText();
-    // append1 + sha256(installationId).toHex()
-    QString append2 = append1 + ui->tb_instal->toPlainText();
-    // append2 + sha1(platformGameUserId).toHex()
-    QString append3 = append2 + ui->tb_platform->toPlainText();
-    // Sha256(append3).toHex()
-    QCryptographicHash crypt(QCryptographicHash::Algorithm::Sha256);
-    crypt.addData(append3.toLatin1(), append3.size());
-    QString result = crypt.result().toHex();
-
-
-
-    ui->le_finalcode->setText(result);
 }
