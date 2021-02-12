@@ -36,11 +36,16 @@ public:
         return platformgaid.left(2) + code.right(8);
     }
 
-    bool ValidateEndpoint()
+    bool ValidateEndpoint(QString clientSessionId)
     {
         QByteArray json = "{"
-                          "\"account_id\":\"" + platformgaid.toLatin1() + "\""
-                          "\"client_installation_id\":\"" + gfuid.toLatin1() + "\""
+                          "\"account_id\":\"" + platformgaid.toLatin1() + "\","
+                          "\"client_installation_id\":\"" + gfuid.toLatin1() + "\","
+                          "\"client_session_id\":\"" + clientSessionId.toLatin1() + "\","
+                          "\"id\":1,"
+                          "\"start_count\":1,"
+                          "\"start_time\":7000,"
+                          "\"type\":\"start_time\""
                           "}";
         NetworkRequester netRequester;
         QNetworkRequest req(QUrl("https://events2.gameforge.com"));
@@ -49,6 +54,7 @@ public:
         req.setRawHeader("Content-Length", QString(json.length()).toLatin1());
         QByteArray response = netRequester.post(json, req);
         qDebug() << response;
+        qDebug() << json;
         return response == "ok";
     }
 
