@@ -15,6 +15,7 @@ SOURCES += \
 HEADERS += \
     codecreator.h \
     mainwindow.h \
+    networkrequester.h \
     rc4.h
 
 FORMS += \

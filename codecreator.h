@@ -7,12 +7,12 @@
 #include <QFile>
 #include <QSslCertificate>
 #include <QSslKey>
+#include "networkrequester.h"
 #include "rc4.h"
 
-
 #include <QDebug>
-
 #include <QSslSocket>
+
 class CodeCreator
 {
 public:
@@ -29,16 +29,27 @@ public:
 
         if (IsFirstDigitEven(gfuid))
         {
-            QByteArray code = sha256(EncryptionKey + sha1(chromeVersion.toLatin1()) + sha256(gfuid.toLatin1()) + sha1(platformgaid.toLatin1()));
+            QByteArray code = sha256(EncryptionKey + sha1("C"+chromeVersion.toLatin1()) + sha256(gfuid.toLatin1()) + sha1(platformgaid.toLatin1()));
             return platformgaid.left(2) + code.left(8);
         }
-        QByteArray code = sha256(EncryptionKey + sha256(chromeVersion.toLatin1()) + sha1(gfuid.toLatin1()) + sha256(platformgaid.toLatin1()));
+        QByteArray code = sha256(EncryptionKey + sha256("C"+chromeVersion.toLatin1()) + sha1(gfuid.toLatin1()) + sha256(platformgaid.toLatin1()));
         return platformgaid.left(2) + code.right(8);
     }
 
     bool ValidateEndpoint()
     {
-        return true;
+        QByteArray json = "{"
+                          "\"account_id\":\"" + platformgaid.toLatin1() + "\""
+                          "\"client_installation_id\":\"" + gfuid.toLatin1() + "\""
+                          "}";
+        NetworkRequester netRequester;
+        QNetworkRequest req(QUrl("https://events2.gameforge.com"));
+        req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        req.setRawHeader("User-Agent", "GameforgeClient/" + chromeVersion.left(chromeVersion.lastIndexOf('.')).toLatin1());
+        req.setRawHeader("Content-Length", QString(json.length()).toLatin1());
+        QByteArray response = netRequester.post(json, req);
+        qDebug() << response;
+        return response == "ok";
     }
 
 private:
